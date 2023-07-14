@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="c3252e87-3d69-4e24-88c8-69e02cf65285" >
+		<salesforce:basic-connection username="ssandrapangu@phidimensions.com" password="PhiDi#2023" securityToken="EDNBJgbjCYBrMMgY5ghiROfjC" />
+	</salesforce:sfdc-config>
+	<flow name="InvoiceSourceFlow" doc:id="76fe65f3-1485-4963-afa5-be795bbdb10e" >
+		<batch:job jobName="InvoiceSourceBatch_Job" doc:id="b4ef6d9a-ee1d-4fd3-9ddc-5d83db0e4102" >
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="6c91d382-1b1d-47c6-98b2-a8ed3395a403" />
+			</batch:process-records>
+		</batch:job>
+	</flow>
+	<sub-flow name="InvoiceSource-flow" doc:id="121b5533-c3b9-4193-94ea-18481e3c2796" >
+		<salesforce:query-all doc:name="Query all" doc:id="ae3fc78a-3917-408b-889c-f11adcbc6847" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[select * from opportunity]]></salesforce:salesforce-query>
+		</salesforce:query-all>
+		<logger level="INFO" doc:name="Logger" doc:id="78861f95-09fa-49ff-b868-51ba88e1d114" message="#[payload]"/>
+	</sub-flow>
+	<sub-flow name="Datapipe-flow" doc:id="050132f3-42b3-4550-b5ff-aea49076dd94" >
+		<file:read doc:name="Read" doc:id="1a634a4d-7220-4cf0-b63d-5c313385157e" config-ref="File_Config" path="C:\Users\ssandrapangu\Downloads\lookup\lookup\DPTransactionInfo.csv"/>
+		<ee:transform doc:name="Transform Message" doc:id="f0357d6e-933c-46bf-a082-933f78507541">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="ee1249e3-94cd-4121-a0f9-0f2ed7269f9a" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]" />
+	</sub-flow>
+</mule>
