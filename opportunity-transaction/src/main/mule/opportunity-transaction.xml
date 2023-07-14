@@ -27,6 +27,7 @@ payload]]></ee:set-payload>
 		<logger level="INFO" doc:name="Logger" doc:id="a6b3c5fd-332b-4854-9f74-d1371e012375" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]"/>
 		<flow-ref doc:name="Flow Reference" doc:id="09aefe82-2215-402a-997b-a7cdbe666351" name="InvoiceSourceFlow"/>
 		<logger level="INFO" doc:name="Logger" doc:id="7fef22ae-bb80-4321-a7b0-90492cd56411" />
+		<logger level="INFO" doc:name="Logger" doc:id="9da8269f-afea-4bef-86d4-def656d9cff9" />
 	</flow>
 	<sub-flow name="opportunity-transactionSub_Flow" doc:id="276782a0-4d41-48ec-8e63-1ed5b368f77a" >
 		<foreach doc:name="For Each" doc:id="8f425f9c-3a45-46b1-8571-1affd6b87b03" >
