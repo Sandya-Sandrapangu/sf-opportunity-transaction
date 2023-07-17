@@ -7,32 +7,37 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
 http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
-	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="c3252e87-3d69-4e24-88c8-69e02cf65285" >
-		<salesforce:basic-connection username="ssandrapangu@phidimensions.com" password="PhiDi#2023" securityToken="EDNBJgbjCYBrMMgY5ghiROfjC" />
-	</salesforce:sfdc-config>
-	<flow name="InvoiceSourceFlow" doc:id="76fe65f3-1485-4963-afa5-be795bbdb10e" >
-		<batch:job jobName="InvoiceSourceBatch_Job" doc:id="b4ef6d9a-ee1d-4fd3-9ddc-5d83db0e4102" >
+<!-- [STUDIO:"InvoiceSourceFlow"]	<flow name="InvoiceSourceFlow" doc:id="76fe65f3-1485-4963-afa5-be795bbdb10e" >
+		<batch:job jobName="InvoiceSourceBatch_Job" doc:id="b4ef6d9a-ee1d-4fd3-9ddc-5d83db0e4102" maxFailedRecords="10">
 			<batch:process-records >
-				<batch:step name="Batch_Step" doc:id="6c91d382-1b1d-47c6-98b2-a8ed3395a403" />
+				<batch:step name="Batch_Step" doc:id="6c91d382-1b1d-47c6-98b2-a8ed3395a403" acceptPolicy="ALL">
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="61a2db63-7ad9-49b3-aa18-0a63a281406f" size="2">
+						<logger level="INFO" doc:name="Logger" doc:id="8e006720-2f84-4e7b-88f7-14f6220997bd" message="#[payload&#93;"/>
+					</batch:aggregator>
+					<set-payload value='#[payload&#93;' doc:name="Set Payload" doc:id="ab0403ab-4e5d-4f4a-9920-5abde640867b" />
+				</batch:step>
 			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="65a23255-c5f1-4df4-b0cb-abbf7ae7770b" message="#[payload&#93;"/>
+			</batch:on-complete>
 		</batch:job>
-	</flow>
-	<sub-flow name="InvoiceSource-flow" doc:id="121b5533-c3b9-4193-94ea-18481e3c2796" >
+	</flow> [STUDIO] -->
+<!-- [STUDIO:"InvoiceSource-flow"]	<sub-flow name="InvoiceSource-flow" doc:id="121b5533-c3b9-4193-94ea-18481e3c2796" >
 		<salesforce:query-all doc:name="Query all" doc:id="ae3fc78a-3917-408b-889c-f11adcbc6847" config-ref="Salesforce_Config">
-			<salesforce:salesforce-query ><![CDATA[select * from opportunity]]></salesforce:salesforce-query>
+			<salesforce:salesforce-query ><![CDATA[select * from opportunity&#93;&#93;></salesforce:salesforce-query>
 		</salesforce:query-all>
-		<logger level="INFO" doc:name="Logger" doc:id="78861f95-09fa-49ff-b868-51ba88e1d114" message="#[payload]"/>
-	</sub-flow>
-	<sub-flow name="Datapipe-flow" doc:id="050132f3-42b3-4550-b5ff-aea49076dd94" >
-		<file:read doc:name="Read" doc:id="1a634a4d-7220-4cf0-b63d-5c313385157e" config-ref="File_Config" path="C:\Users\ssandrapangu\Downloads\lookup\lookup\DPTransactionInfo.csv"/>
+		<logger level="INFO" doc:name="Logger" doc:id="78861f95-09fa-49ff-b868-51ba88e1d114" message="#[payload&#93;"/>
+	</sub-flow> [STUDIO] -->
+<!-- [STUDIO:"Datapipe-flow"]	<sub-flow name="Datapipe-flow" doc:id="050132f3-42b3-4550-b5ff-aea49076dd94" >
+		<file:read doc:name="Read" doc:id="1a634a4d-7220-4cf0-b63d-5c313385157e" path="C:\Users\ssandrapangu\Downloads\lookup\lookup\DPTransactionInfo.csv"/>
 		<ee:transform doc:name="Transform Message" doc:id="f0357d6e-933c-46bf-a082-933f78507541">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
----
-payload]]></ee:set-payload>
+&#45;&#45;-
+payload&#93;&#93;></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="ee1249e3-94cd-4121-a0f9-0f2ed7269f9a" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]" />
-	</sub-flow>
+		<logger level="INFO" doc:name="Logger" doc:id="ee1249e3-94cd-4121-a0f9-0f2ed7269f9a" message="#[%dw 2.0&#10;output application/json&#10;&#45;&#45;-&#10;payload&#93;" />
+	</sub-flow> [STUDIO] -->
 </mule>

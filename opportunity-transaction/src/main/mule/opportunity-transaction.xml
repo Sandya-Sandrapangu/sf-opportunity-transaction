@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file"
-	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-	<file:config name="File_Config" doc:name="File Config" doc:id="55179d75-b21f-4f22-891e-30ed93fe3030" >
-		<file:connection />
-	</file:config>
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
 	<flow name="opportunity-transactionFlow" doc:id="0ed35705-1b89-4c77-86d4-e0f341fd42c7" >
-		<file:listener doc:name="On New or Updated File" doc:id="b12ad7b5-2f97-4693-ac4f-9df2328bac52" config-ref="File_Config" directory='C:\Users\ssandrapangu\OneDrive - Phidimensions_O365\Desktop\transactions\input' outputMimeType="application/csv; separator=|; header=true" timeBetweenSizeCheckUnit="HOURS" recursive="false" moveToDirectory="C:\Users\ssandrapangu\OneDrive - Phidimensions_O365\Desktop\transactions\input\ABC" overwrite="true">
+		<file:listener doc:name="On New or Updated File" doc:id="b12ad7b5-2f97-4693-ac4f-9df2328bac52" directory='C:\Users\ssandrapangu\OneDrive - Phidimensions_O365\Desktop\transactions\input' outputMimeType="application/csv; separator=|; header=true" timeBetweenSizeCheckUnit="HOURS" recursive="false" moveToDirectory="C:\Users\ssandrapangu\OneDrive - Phidimensions_O365\Desktop\transactions\input\ABC" overwrite="true" config-ref="File_Config">
 			<scheduling-strategy >
 				<fixed-frequency/>
 			</scheduling-strategy>
@@ -21,27 +20,63 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 output application/json
 ---
 payload]]></ee:set-payload>
+
 			</ee:message>
-			<ee:variables />
+			<ee:variables >
+			</ee:variables>
 		</ee:transform>
 		<logger level="INFO" doc:name="Logger" doc:id="a6b3c5fd-332b-4854-9f74-d1371e012375" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]"/>
-		<flow-ref doc:name="Flow Reference" doc:id="09aefe82-2215-402a-997b-a7cdbe666351" name="InvoiceSourceFlow"/>
-		<logger level="INFO" doc:name="Logger" doc:id="7fef22ae-bb80-4321-a7b0-90492cd56411" />
-		<logger level="INFO" doc:name="Logger" doc:id="9da8269f-afea-4bef-86d4-def656d9cff9" />
+<!-- [STUDIO:"Flow Reference"]		<flow-ref doc:name="Flow Reference" doc:id="09aefe82-2215-402a-997b-a7cdbe666351" name="opportunity-transactionSub_Flow"/> [STUDIO] -->
+		<batch:job jobName="opportunity-transactionBatch_Job" doc:id="512e54a2-f851-4412-867e-e592bcf8c235" maxFailedRecords="10">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="703128b3-f69d-4a72-b52d-be36418241e6" acceptExpression='#[payload."Invoice Source" == "Datapipe"]'>
+					<logger level="INFO" doc:name="Logger" doc:id="a8156b43-340f-48a6-89db-c898ade70d10" message="#[payload]"/>
+					<file:read doc:name="Read" doc:id="59140fa4-5b12-41db-a819-650093bc1849" path="C:\Users\ssandrapangu\Downloads\lookup\lookup\DPTransactionInfo.csv"/>
+					<ee:transform doc:name="Transform Message" doc:id="5474e675-0eb2-413f-af97-58d555e09159" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="dc4115a1-4f16-433c-aa6c-8c9027426691" size="10">
+						<logger level="INFO" doc:name="Logger" doc:id="fe643d07-416f-4701-acfb-724c692e917f" message="#[payload]"/>
+					</batch:aggregator>
+				</batch:step>
+				<batch:step name="Batch_Step1" doc:id="07fafda5-b1ba-407b-8324-e49c1f8bbb83" acceptExpression='#[payload."Invoice Source" == "US CLOUD"]'>
+					<logger level="INFO" doc:name="Logger" doc:id="313fb2fc-7ff9-4b5f-9f0d-f8762542b9b3" message="#[payload]"/>
+					<salesforce:query-all doc:name="Query all" doc:id="1ac2fcfc-56d9-490b-998a-ce1d8aac3eb0" config-ref="Salesforce_Config">
+						<salesforce:salesforce-query ><![CDATA[select AccountNumber__c,InvoiceDate__c,InvoiceNumber__c,InvoiceSource__c,TransactionType__c,CurrencyCode__c,Amount from Opportunity]]></salesforce:salesforce-query>
+					</salesforce:query-all>
+					<ee:transform doc:name="Transform Message" doc:id="e6db12bd-bb39-4889-8b95-25449cf748c7" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload ]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="7e16ede0-2e58-49fd-8641-f2ff588b64e5" message="#[payload]"/>
+			</batch:on-complete>
+		</batch:job>
 	</flow>
-	<sub-flow name="opportunity-transactionSub_Flow" doc:id="276782a0-4d41-48ec-8e63-1ed5b368f77a" >
-		<foreach doc:name="For Each" doc:id="8f425f9c-3a45-46b1-8571-1affd6b87b03" >
+<!-- [STUDIO:"opportunity-transactionSub_Flow"]	<sub-flow name="opportunity-transactionSub_Flow" doc:id="276782a0-4d41-48ec-8e63-1ed5b368f77a" >
+		<foreach doc:name="For Each" doc:id="8f425f9c-3a45-46b1-8571-1affd6b87b03" collection="#[payload&#93;">
 			<choice doc:name="Choice" doc:id="37be463c-102d-47f4-8eaf-f4cbb8b9180c">
-			<when expression='#[payload."Invoice Source" == "Datapipe"]'>
-					<flow-ref doc:name="Flow Reference" doc:id="2488ce41-3c59-40b1-bd7a-1c9afe8349db" name="Datapipe-flow" />
+			<when expression='#[payload."Invoice Source" == "Datapipe"&#93;'>
+					<flow-ref doc:name="Flow Reference" doc:id="2488ce41-3c59-40b1-bd7a-1c9afe8349db" name="InvoiceSourceFlow" />
 			</when>
-			<when expression='#[payload."Invoice Source" == "US CLOUD"]'>
+			<when expression='#[payload."Invoice Source" == "US CLOUD"&#93;'>
 					<flow-ref doc:name="Flow Reference" doc:id="b3fd3309-e132-4e85-8af3-929029909321" name="InvoiceSource-flow"/>
 				</when>
 				<otherwise>
-				<logger level="INFO" doc:name="Logger" doc:id="68b49f6f-8e98-4f59-b08e-db0778784839" message="#[payload]" />
+				<logger level="INFO" doc:name="Logger" doc:id="68b49f6f-8e98-4f59-b08e-db0778784839" message="#[payload&#93;" />
 			</otherwise>
 		</choice>
 		</foreach>
-	</sub-flow>
+	</sub-flow> [STUDIO] -->
 </mule>

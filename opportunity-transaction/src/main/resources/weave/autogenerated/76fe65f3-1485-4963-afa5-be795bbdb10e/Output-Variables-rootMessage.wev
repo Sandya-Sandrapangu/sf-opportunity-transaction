@@ -1,0 +1,21 @@
+%dw 2.0
+
+type auto_76fe65f3_1485_4963_afa5_be795bbdb10e_Output_Variables_rootMessage = {|
+  payload: Array<{|    "Account Number": Number {"typeId": "int"},     "Invoice Number": String,     "Invoice Date": String,     "Invoice Time Month Key": Number {"typeId": "int"},     "Invoice Source": String,     "Transaction Type": String,     Amount: Number {"typeId": "double"},     "Currency Code": String,     "Device Number": String,     "Product Group": String,     "Product Type": String,     "Product Type Charge Type": String,     "Aging Bucket": Number {"typeId": "int"},     "Account Key": String,     "Line Of Business": String,     "First Invoice Date": String,     "Contract End Date": String,     "Line Item Number": String,     "GL Account": Number {"typeId": "int"},     "GL Product Code": Number {"typeId": "int"},     "Proserv Project ID": String,     "Commission Flag": String,     "Reserved Field 9": String,     "Reserved Field 10": String  |}> {"example": "[{\\\"Account Number\\\":1015711,\\\"Invoice Number\\\":\\\"B1-64461028\\\",\\\"Invoice Date\\\":\\\"2022\\/12\\/24\\\",\\\"Invoice Time Month Key\\\":202212,\\\"Invoice Source\\\":\\\"US CLOUD\\\",\\\"Transaction Type\\\":\\\"INVOICE\\\",\\\"Amount\\\":66.39,\\\"Currency Code\\\":\\\"USD\\\",\\\"Device Number\\\":\\\"\\\",\\\"Product Group\\\":\\\"AWS Account #564371287397 (Funeral Zone Infrastructure)\\\",\\\"Product Type\\\":\\\"AWS DATATRANSFER (NOVEMBER 2022)\\\",\\\"Product Type Charge Type\\\":\\\"INFRASTRUCTURE\\\",\\\"Aging Bucket\\\":0,\\\"Account Key\\\":\\\"1015711-US_CLOUD\\\",\\\"Line Of Business\\\":\\\"US_CLOUD\\\",\\\"First Invoice Date\\\":\\\"2016\\/09\\/24\\\",\\\"Contract End Date\\\":\\\"2099\\/01\\/01\\\",\\\"Line Item Number\\\":\\\"2212_340197737686142047_0\\\",\\\"GL Account\\\":417000,\\\"GL Product Code\\\":7168,\\\"Proserv Project ID\\\":\\\"\\\",\\\"Commission Flag\\\":\\\"\\\",\\\"Reserved Field 9\\\":\\\"\\\",\\\"Reserved Field 10\\\":\\\"\\\"}]"}, 
+  attributes: org_mule_extension_file_api_LocalFileAttributes
+|} {"typeId": "org.mule.runtime.api.message.Message"}
+type org_mule_extension_file_api_LocalFileAttributes = {|
+  lastModifiedTime: DateTime {"typeId": "java.time.LocalDateTime"}, 
+  lastAccessTime: DateTime {"typeId": "java.time.LocalDateTime"}, 
+  creationTime: DateTime {"typeId": "java.time.LocalDateTime"}, 
+  size: Number, 
+  regularFile?: Boolean {"typeId": "boolean"}, 
+  directory?: Boolean {"typeId": "boolean"}, 
+  symbolicLink?: Boolean {"typeId": "boolean"}, 
+  path: String, 
+  fileName: String
+|} {"typeAlias": "LocalFileAttributes",
+"typeId": "org.mule.extension.file.api.LocalFileAttributes"}
+
+
+
