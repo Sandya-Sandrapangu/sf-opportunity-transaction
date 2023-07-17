@@ -36,7 +36,28 @@ payload]]></ee:set-payload>
 							<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-payload]]></ee:set-payload>
+payload map{
+	ParticipantID: $.ParticipantID,
+	OpportunityNumber: $."Account Number",
+	FinalOpportunityType: $.FinalOpportunityType,
+	CloseDate: $.CloseDate,
+	PartnerAccountName: $.PartnerAccountName,
+	PartnerAccountRVExtId: $.PartnerAccountRVExtId,
+	PartnerAccountId: $.PartnerAccountId,
+	PartnerAccountOwner: $.PartnerAccountOwner,
+	PartnerAccountOwnerRole: $.PartnerAccountOwnerRole,
+	PartnerContractType: $.PartnerContractType,
+	CommissionRole: $.CommissionRole,
+	OracleVendorId: $.OracleVendorId,
+	PartnerType: $.PartnerType,
+	TierLevel: $.TierLevel,
+	CampaignCode: $.CampaignCode,
+	PartnerAccount: $.PartnerAccount,
+	PartnerRole: $.PartnerRole,
+	PartnerAccountType: $.PartnerAccountType,
+	PartnerAccountSubType: $.PartnerAccountSubType,
+	OpportunityCategory: $.OpportunityCategory
+}]]></ee:set-payload>
 						</ee:message>
 					</ee:transform>
 					<batch:aggregator doc:name="Batch Aggregator" doc:id="dc4115a1-4f16-433c-aa6c-8c9027426691" size="10">
@@ -53,7 +74,15 @@ payload]]></ee:set-payload>
 							<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-payload ]]></ee:set-payload>
+payload map{
+	"AccountNumber__c": $."Account Number",
+	"InvoiceDate__c": $."Invoice Date",
+	"InvoiceNumber__c": $."Invoice Number",
+	"InvoiceSource__c": $."Invoice Source",
+	"TransactionType__c": $."Transaction Type",
+	"CurrencyCode__c": $."Currency Code",
+	"Amount": $.Amount
+}]]></ee:set-payload>
 						</ee:message>
 					</ee:transform>
 				</batch:step>
