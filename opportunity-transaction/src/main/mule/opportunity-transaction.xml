@@ -14,7 +14,7 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
 				<fixed-frequency/>
 			</scheduling-strategy>
 		</file:listener>
-		<ee:transform doc:name="Transform Message" doc:id="bac5bce8-cea7-430d-a098-2af0d69855a5" >
+		<ee:transform doc:name="convert csv to json" doc:id="bac5bce8-cea7-430d-a098-2af0d69855a5" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -29,11 +29,12 @@ payload]]></ee:set-payload>
 		<batch:job jobName="opportunity-transactionBatch_Job" doc:id="512e54a2-f851-4412-867e-e592bcf8c235" maxFailedRecords="10">
 			<batch:process-records >
 				<batch:step name="InvoiceSourceisDatapipe" doc:id="703128b3-f69d-4a72-b52d-be36418241e6" acceptExpression='#[payload."Invoice Source" == "Datapipe"]'>
-					<logger level="INFO" doc:name="Logger" doc:id="a8156b43-340f-48a6-89db-c898ade70d10" message="#[payload]"/>
-					<file:read doc:name="Read" doc:id="59140fa4-5b12-41db-a819-650093bc1849" path="C:\Users\ssandrapangu\Downloads\lookup\lookup\DPTransactionInfo.csv" config-ref="File_Config"/>
-					<ee:transform doc:name="Transform Message" doc:id="5474e675-0eb2-413f-af97-58d555e09159" >
-						<ee:message >
-							<ee:set-payload ><![CDATA[%dw 2.0
+					<try doc:name="Try" doc:id="bff6f1d4-3a6f-4289-bbf5-3d617ae1e647" >
+						<logger level="INFO" doc:name="Logger" doc:id="a8156b43-340f-48a6-89db-c898ade70d10" message="#[payload]" />
+						<file:read doc:name="Read" doc:id="59140fa4-5b12-41db-a819-650093bc1849" path="C:\Users\ssandrapangu\Downloads\lookup\lookup\DPTransactionInfo.csv" config-ref="File_Config" />
+						<ee:transform doc:name="Transform Message" doc:id="5474e675-0eb2-413f-af97-58d555e09159">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 payload map{
@@ -60,18 +61,25 @@ payload map{
 }]]></ee:set-payload>
 						</ee:message>
 					</ee:transform>
+						<error-handler >
+							<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="6b3884cc-2f20-4751-884a-612fc422da69" >
+								<raise-error doc:name="Raise error" doc:id="c10744b2-72c7-46dc-a656-609c54712295" type="ERROR:INVALIDRECORDS" description="InvoiceSource is not Datapipe" />
+							</on-error-propagate>
+						</error-handler>
+					</try>
 					<batch:aggregator doc:name="Batch Aggregator" doc:id="dc4115a1-4f16-433c-aa6c-8c9027426691" size="10">
 						<logger level="INFO" doc:name="Logger" doc:id="fe643d07-416f-4701-acfb-724c692e917f" message="#[payload]"/>
 					</batch:aggregator>
 				</batch:step>
 				<batch:step name="InvoiceSourceisUsCloud" doc:id="07fafda5-b1ba-407b-8324-e49c1f8bbb83" acceptExpression='#[payload."Invoice Source" == "US CLOUD"]'>
-					<logger level="INFO" doc:name="Logger" doc:id="313fb2fc-7ff9-4b5f-9f0d-f8762542b9b3" message="#[payload]"/>
-					<salesforce:query-all doc:name="Query all" doc:id="1ac2fcfc-56d9-490b-998a-ce1d8aac3eb0" config-ref="Salesforce_Config">
-						<salesforce:salesforce-query ><![CDATA[select AccountNumber__c,InvoiceDate__c,InvoiceNumber__c,InvoiceSource__c,TransactionType__c,CurrencyCode__c,Amount from Opportunity]]></salesforce:salesforce-query>
+					<try doc:name="Try" doc:id="9dbd770b-60dd-4995-8b14-e51e44921917" >
+						<logger level="INFO" doc:name="Logger" doc:id="313fb2fc-7ff9-4b5f-9f0d-f8762542b9b3" message="#[payload]" />
+						<salesforce:query-all doc:name="Query all" doc:id="1ac2fcfc-56d9-490b-998a-ce1d8aac3eb0" config-ref="Salesforce_Config">
+						<salesforce:salesforce-query><![CDATA[select AccountNumber__c,InvoiceDate__c,InvoiceNumber__c,InvoiceSource__c,TransactionType__c,CurrencyCode__c,Amount from Opportunity]]></salesforce:salesforce-query>
 					</salesforce:query-all>
-					<ee:transform doc:name="Transform Message" doc:id="e6db12bd-bb39-4889-8b95-25449cf748c7" >
-						<ee:message >
-							<ee:set-payload ><![CDATA[%dw 2.0
+						<ee:transform doc:name="Transform Message" doc:id="e6db12bd-bb39-4889-8b95-25449cf748c7">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 payload map{
@@ -85,6 +93,15 @@ payload map{
 }]]></ee:set-payload>
 						</ee:message>
 					</ee:transform>
+						<error-handler >
+							<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="7fca2489-f032-4f11-9b4a-469c896f0f7a" >
+								<raise-error doc:name="Raise error" doc:id="78c9c324-2aba-4075-8916-cedac88d8756" type="ERROR:INVALIDRECORDS" description="InvoiceSource is not Uscloud"/>
+							</on-error-propagate>
+						</error-handler>
+					</try>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="5565c5c7-cee1-4324-a77b-e784598a082c" size="10">
+						<logger level="INFO" doc:name="Logger" doc:id="864c4965-4a29-4d23-9dab-543979f8c23b" message="#[payload]"/>
+					</batch:aggregator>
 				</batch:step>
 			</batch:process-records>
 			<batch:on-complete >
